@@ -1,7 +1,7 @@
 // Edit this file to change prices, availability, travel charge or exam date. No other code needs touching.
 export default {
-  standalone: { 1: 25, 2: 42 },                 // standalone bookings (pounds)
-  packages: { 6: 117, 12: 228, 24: 444, 36: 648 }, // fixed package prices (pounds)
+  standalone: { 1: 25, 2: 45 },                 // standalone bookings (pounds)
+  packages: { 6: 120, 12: 230, 24: 450, 36: 650 }, // fixed package prices (pounds)
   minRate: 18,                                   // no hour may cost less than this
   availability: {
     oneToOne: "Spaces available for one-to-one tuition",
