@@ -44,7 +44,8 @@ details{background:#fff;border-radius:14px;padding:.9rem 1.2rem;margin-bottom:.7
 .nav{display:flex;justify-content:space-between;gap:1rem;margin-top:1.2rem}.err{color:#b3261e;font-weight:700;min-height:1.4em;margin:.6rem 0 0}
 label{display:block;font-weight:700;margin-bottom:.25rem}input[type=text],input[type=tel]{width:100%;font:inherit;padding:.75rem;border:2px solid #9db2c2;border-radius:12px;margin-bottom:.9rem}.radio{display:flex;gap:1.2rem;margin-bottom:.9rem;font-weight:400}.radio label{font-weight:400;display:flex;gap:.4rem;align-items:center}
 .hp{position:absolute;left:-9999px}
-.res h3{margin-top:1.2rem}.res ul{padding-left:1.2rem;margin:0 0 1rem}.price{font:800 2.2rem var(--head)}.tag{display:inline-block;background:var(--pale);border-radius:99px;padding:.2rem .8rem;font-weight:700;font-size:.9rem;margin:0 .4rem .4rem 0}
+.res h3{margin-top:1.2rem}.res ul{padding-left:1.2rem;margin:0 0 1rem}.price{font:800 1.6rem var(--head)}.tag{display:inline-block;background:var(--pale);border-radius:99px;padding:.2rem .8rem;font-weight:700;font-size:.9rem;margin:0 .4rem .4rem 0}
+.key{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.6rem;margin:1rem 0}.key div{background:var(--pale);border-radius:14px;padding:.7rem .9rem;font-weight:700}.key .k{display:block;font-weight:400;color:var(--grey);font-size:.85rem}.key .price{font-size:1.6rem}
 .alt{background:var(--pale);border-radius:14px;padding:1rem;margin-top:1rem}
 footer{background:#0c2234;color:#d6e2ec;padding:2rem 0;font-size:.95rem}footer a{color:var(--gold)}footer p{max-width:none;margin:.3rem 0}
 .float{position:fixed;right:1rem;bottom:1rem;z-index:20;box-shadow:0 4px 14px rgba(0,0,0,.25)}
@@ -62,6 +63,11 @@ footer{background:#0c2234;color:#d6e2ec;padding:2rem 0;font-size:.95rem}footer a
   <ul class="trust"><li>100+ pupils supported</li><li>5+ years’ experience</li><li>98% achieved or exceeded the expected KS2 SATs standard</li></ul>
   <p class="muted" style="margin-top:.8rem">Face-to-face tuition in Hayes and across West London. SATs result refers to past Year 6 pupils and is not a guarantee of future results.</p>
 </div></div>
+
+<section id="finder"><div class="wrap"><h2>Find your child’s tuition plan</h2><p>Four quick questions, about a minute. Get a personalised plan, schedule and price straight away. No email needed.</p>
+<div class="box" id="box" aria-live="polite"></div></div></section>
+
+<section class="pale" id="about" hidden><div class="wrap"><h2 id="abt"></h2><p id="abp"></p><ul class="trust" id="abl"></ul></div></section>
 
 <section><div class="wrap"><h2>Tuition for every stage</h2>
 <div class="cards">
@@ -87,11 +93,11 @@ footer{background:#0c2234;color:#d6e2ec;padding:2rem 0;font-size:.95rem}footer a
 <section><div class="wrap"><h2>Questions parents ask</h2>
 <details><summary>Where do lessons take place?</summary><p>Lessons are face-to-face in Hayes and nearby areas including Yeading, Southall, Hounslow, Uxbridge, West Drayton, Northolt and Greenford. We’ll confirm what’s practical for you on the call.</p></details>
 <details><summary>Do I have to commit before speaking to you?</summary><p>No. Your plan is an indicative estimate and we always start with a free 15-minute call.</p></details>
+<details><summary>How long is each lesson?</summary><p>Lessons are one hour. Where a plan has two hours a week, it is two one-hour visits, so younger children are not asked to concentrate for one long session.</p></details>
+<details><summary>Is the price in my plan final?</summary><p>It is an indicative estimate based on your answers. We confirm the final arrangement and availability on the free call.</p></details>
 <details><summary>Do you offer group tuition?</summary><p>Our main offer is one-to-one. Group tuition is currently fully booked, but you can ask to join the waiting list.</p></details>
 </div></section>
 
-<section id="finder"><div class="wrap"><h2>Find your child’s tuition plan</h2><p>Four quick questions. No email needed.</p>
-<div class="box" id="box" aria-live="polite"></div></div></section>
 </main>
 
 <footer><div class="wrap">
@@ -111,8 +117,11 @@ $("#avail").textContent=CONFIG.availability.oneToOne+". "+CONFIG.availability.gr
 const rows=[...Object.entries(CONFIG.standalone).map(([h,t])=>[h+(h==1?" hour":" hours"),t,h]),...Object.entries(CONFIG.packages).map(([h,t])=>[h+" hours",t,h])];
 $("#ptable").innerHTML=rows.map(([l,t,h])=>`<tr><td>${l}</td><td>${money(t)}</td><td>${money(Math.round(t/h*100)/100)}</td></tr>`).join("");
 
+const T=CONFIG.trust||{},tl=[];if(T.dbsChecked)tl.push("Enhanced DBS checked");if(T.insured)tl.push("Fully insured");
+if(T.tutorName||T.tutorBio||tl.length){$("#about").hidden=false;$("#abt").textContent=T.tutorName?"Meet "+T.tutorName:"Your tutor";$("#abp").textContent=T.tutorBio||"";tl.forEach(t=>{const li=document.createElement("li");li.textContent=t;$("#abl").append(li)})}
 const A={year:null,subjects:[],goal:null,freq:null}, box=$("#box"); let step=0;
-const goalOpts=()=>{const y=A.year,o=[["confidence","Build confidence and strengthen foundations"],["catchup","Catch up with areas they are finding difficult"],["ahead","Improve understanding and get ahead"],["reading",y<=2?"Improve phonics and early reading":"Improve reading and writing"]];
+const goalOpts=()=>{const y=A.year,o=[["confidence","Build confidence and strengthen foundations"],["catchup","Catch up with areas they are finding difficult"],["ahead","Improve understanding and get ahead"],["homework","Help with homework"]];
+ if(y>=3)o.splice(3,0,["reading","Improve reading and writing"]);
  if(y===5)o.push(["sats","Prepare for future Year 6 SATs"]);if(y===6)o.push(["sats","Prepare for KS2 SATs"]);return o};
 const Q=[
  {t:"What year is your child in?",k:"year",o:()=>["Reception","Year 1","Year 2","Year 3","Year 4","Year 5","Year 6"].map((l,i)=>[i,l])},
@@ -122,7 +131,7 @@ const Q=[
 function draw(){
  const n=Q.length+1; box.innerHTML=`<div class="bar"><i style="width:${(step+1)/n*100}%"></i></div><p class="muted">Step ${step+1} of ${n}</p>`;
  if(step<Q.length){const q=Q[step];box.insertAdjacentHTML("beforeend",`<h3>${q.t}</h3>${q.hint?`<p class="muted">${q.hint}</p>`:""}<div class="opts ${q.one?"one":""}">${q.o().map(([v,l])=>{const on=q.multi?A[q.k].includes(v):A[q.k]===v;return `<button type="button" class="opt" data-v="${v}" aria-pressed="${on}">${l}</button>`}).join("")}</div><p class="err" role="alert"></p><div class="nav"><button class="btn line" type="button" id="back" ${step?"":"disabled"}>Back</button><button class="btn dark" type="button" id="next">Continue</button></div>`);
-  box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{let v=b.dataset.v;if(q.k==="year")v=+v;if(q.multi){const i=A[q.k].indexOf(v);i<0?A[q.k].push(v):A[q.k].splice(i,1)}else{A[q.k]=v;if(q.k==="year")A.goal=null}draw();if(!q.multi&&!q.one){}});
+  box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{let v=b.dataset.v;if(q.k==="year")v=+v;if(q.multi){const i=A[q.k].indexOf(v);i<0?A[q.k].push(v):A[q.k].splice(i,1)}else{A[q.k]=v;if(q.k==="year")A.goal=null}draw();if(!q.multi){const s=step;setTimeout(()=>{if(step===s){step++;draw()}},250)}});
   $("#next").onclick=()=>{const v=A[q.k];if(v===null||(q.multi&&!v.length)){box.querySelector(".err").textContent="Please choose an option to continue.";return}step++;draw()};
   $("#back").onclick=()=>{step--;draw()};
  } else contact();
@@ -141,18 +150,19 @@ function contact(){
   const rec=recommend(A);show(rec,c);
   try{const r=await fetch("/api/enquiry",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({...c,answers:A})});$("#sv").textContent=r.ok?"Thank you. Your enquiry has been sent to us and we will be in touch soon.":"We couldn’t save your enquiry automatically. Please message us on WhatsApp and we’ll pick it up."}catch{$("#sv").textContent="We couldn’t save your enquiry automatically. Please message us on WhatsApp and we’ll pick it up."}};
 }
-function show(r,c){const p=r.price,yr=A.year===0?"Reception":"Year "+A.year;
+function show(r,c){const p=r.price,yr=A.year===0?"Reception":"Year "+A.year,nm=c.name.replace(/[<>]/g,"");
  box.className="box res";box.innerHTML=`<p class="tag">${yr}</p><p class="tag">${r.subjects.join(" and ")}</p><h3 style="margin-top:0">${r.name}</h3>
- <p id="sv" class="muted" role="status">Sending your enquiry…</p>
- <p>${r.requested}</p><p>${r.why} ${r.note}</p>
- <h3>Your recommended programme</h3><ul><li>${r.weeks} weeks</li><li>${r.hpw} hour${r.hpw>1?"s":""} a week (${r.visits} visit${r.visits>1?"s":""} of ${r.visitLength} hour)</li><li>${r.hours} tuition hours in total</li></ul>
- <h3>Learning priorities</h3>${Object.entries(r.priorities).map(([s,l])=>`<p><strong>${s}:</strong> ${l.join(", ")}</p>`).join("")}<p class="muted">Priorities are indicative and are confirmed after an initial assessment.</p>
- <h3>Your ${r.weeks}-week timeline</h3><ul>${r.phases.map(x=>`<li><strong>${x.weeks}:</strong> ${x.text}</li>`).join("")}</ul>
- <h3>Your indicative estimate</h3><div class="price">${money(p.total)}</div><p>${money(p.rate)} per hour on average &middot; about ${money(p.weekly)} a week &middot; about ${money(p.monthly)} a month (estimated monthly equivalent, not an instalment)</p>
+ <div class="key"><div><span class="k">Programme</span>${r.weeks} weeks</div><div><span class="k">Lessons</span>${r.hpw} hour${r.hpw>1?"s":""} a week</div><div><span class="k">Total tuition</span>${r.hours} hours</div><div><span class="k">Your estimate</span><span class="price">${money(p.total)}</span></div></div>
+ <p>About ${money(p.rate)} per hour on average, ${money(p.weekly)} a week, or about ${money(p.monthly)} a month (an estimated monthly equivalent, not an instalment).</p>
  ${r.travel?`<p>Travel charge: ${money(r.travel.amount)} ${r.travel.note}</p>`:""}
+ <p><strong>Next step:</strong> a free 15-minute call to talk it through.</p>
+ <div class="acts"><a class="btn gold big" target="_blank" rel="noopener" href="${wa(`Hi, I’m ${nm}. I’ve just used the Tuition Finder and would like to book a free 15-minute call about the ${r.name} plan.`)}">Message us on WhatsApp</a><a class="btn line" href="tel:+${CONFIG.whatsapp}">Call 07810 814257</a></div>
+ <p class="muted">${r.disclaimer}</p><p id="sv" class="muted" role="status">Sending your enquiry…</p>
+ <p>${r.requested}</p><p>${r.why} ${r.note}</p>
  ${r.alt?`<div class="alt"><strong>Another way to do it:</strong> ${r.alt.hpw} hour${r.alt.hpw>1?"s":""} a week over ${r.alt.weeks} weeks, the same ${r.alt.hours} hours for ${money(r.alt.price.total)}.</div>`:""}
- <h3>What’s included</h3><ul>${r.includes.map(i=>`<li>${i}</li>`).join("")}</ul><p class="muted">${r.disclaimer}</p>
- <div class="acts"><a class="btn gold" target="_blank" rel="noopener" href="${wa(`Hi, I’m ${c.name.replace(/[<>]/g,"")}. I’ve just used the Tuition Finder and would like to book a free 15-minute call about the ${r.name} plan.`)}">Message us on WhatsApp</a></div>`;
+ <details><summary>What we’ll focus on</summary>${Object.entries(r.priorities).map(([s,l])=>`<p><strong>${s}:</strong> ${l.join(", ")}</p>`).join("")}<p class="muted">Priorities are indicative and are confirmed after an initial assessment.</p></details>
+ <details><summary>Your ${r.weeks}-week timeline</summary><ul>${r.phases.map(x=>`<li><strong>${x.weeks}:</strong> ${x.text}</li>`).join("")}</ul></details>
+ <details><summary>What’s included</summary><ul>${r.includes.map(i=>`<li>${i}</li>`).join("")}</ul></details>`;
  box.scrollIntoView({behavior:"smooth",block:"start"});}
 draw();
 </script>

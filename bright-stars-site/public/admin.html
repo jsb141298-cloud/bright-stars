@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow"><title>Enquiries | Bright Stars Learning</title>
+<style>
+body{font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;background:#EEF7F6;color:#13334D}
+main{max-width:1100px;margin:0 auto;padding:1.25rem}h1{font-size:1.6rem;margin:.2rem 0 1rem}
+input,button{font:inherit;padding:.7rem 1rem;border-radius:10px;border:2px solid #13334D}input{width:min(100%,320px)}
+button{background:#FFBD45;font-weight:700;cursor:pointer}.note{color:#587186;font-size:.9rem}.err{color:#b3261e;font-weight:700}
+.card{background:#fff;border-radius:16px;padding:1rem 1.2rem;margin:.8rem 0;box-shadow:0 2px 0 rgba(19,51,77,.12)}
+.card h2{font-size:1.1rem;margin:0 0 .3rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.2rem 1.5rem}
+.k{color:#587186;font-size:.85rem}.tag{background:#FFBD45;border-radius:99px;padding:.1rem .7rem;font-weight:700;font-size:.85rem}
+</style></head><body><main>
+<h1>Tuition Finder enquiries</h1>
+<p><label for="k">Admin key</label><br><input id="k" type="password" autocomplete="off"> <button id="go" type="button">Show enquiries</button></p>
+<p class="note" id="s">Enter your admin key to see the latest 200 enquiries.</p><div id="list"></div></main>
+<script>
+const Y=["Reception","Year 1","Year 2","Year 3","Year 4","Year 5","Year 6"];
+const G={confidence:"Build confidence and strengthen foundations",catchup:"Catch up with areas they find difficult",ahead:"Improve understanding and get ahead",sats:"Prepare for SATs",reading:"Improve reading and writing",homework:"Help with homework"};
+const F={once:"Once a week",twice:"Twice a week",flexible:"Flexible"};
+const $=id=>document.getElementById(id);
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function field(box,k,v){const d=el("div");d.append(el("div","k",k),el("div","",v==null||v===""?"-":String(v)));box.append(d)}
+$("go").onclick=async()=>{
+  $("s").className="note";$("s").textContent="Loading...";$("list").textContent="";
+  try{
+    const r=await fetch("/api/admin",{method:"POST",headers:{"x-admin-key":$("k").value.trim()}});
+    const d=await r.json();
+    if(!r.ok||!d.ok){$("s").className="err";$("s").textContent=r.status===401?"Wrong admin key.":"Could not load enquiries ("+(d.error||r.status)+").";return}
+    $("s").textContent=d.rows.length+" enquir"+(d.rows.length===1?"y":"ies")+". Database: connected. Email key: "+(d.config.emailKeySet?"set":"NOT SET, so emails are not being sent")+".";
+    d.rows.forEach(r=>{const c=el("div","card");c.append(el("h2","",r.name+"  ("+r.created+" UTC)"));
+      const g=el("div","grid");c.append(g);
+      field(g,"Mobile",r.phone);field(g,"Preferred contact",r.contact);field(g,"Postcode",r.postcode);
+      field(g,"Child's year",Y[r.year]);field(g,"Subjects",(r.subjects||[]).join(" and "));field(g,"Wants to improve",G[r.goal]||r.goal);
+      field(g,"Frequency asked for",F[r.freq]||r.freq);field(g,"Recommended plan",r.plan);
+      field(g,"Schedule",r.weeks+" weeks, "+r.hpw+" hour(s) a week, "+r.hours+" hours");field(g,"Total estimate","£"+r.total);
+      $("list").append(c)});
+  }catch(e){$("s").className="err";$("s").textContent="Something went wrong. Check your connection and try again."}
+};
+$("k").addEventListener("keydown",e=>{if(e.key==="Enter")$("go").click()});
+</script></body></html>
